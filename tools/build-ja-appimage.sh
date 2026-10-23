@@ -60,15 +60,23 @@ NODE
 echo "[5/5] AppImage を再構築"
 mkdir -p "$(dirname "$OUTPUT")"
 cd "$WORK"
-if command -v appimagetool >/dev/null 2>&1; then
-    ARCH=x86_64 appimagetool "$APPDIR" "$OUTPUT"
+RUNTIME_ARGS=()
+if [ -n "${APPIMAGE_RUNTIME:-}" ]; then
+    RUNTIME_ARGS=(--runtime-file "$APPIMAGE_RUNTIME")
+fi
+if [ -n "${APPIMAGETOOL:-}" ]; then
+    APPIMAGETOOL=("$APPIMAGETOOL")
+elif command -v appimagetool >/dev/null 2>&1; then
+    APPIMAGETOOL=(appimagetool)
 else
     TOOL="$WORK/appimagetool.AppImage"
     curl -fsSL -o "$TOOL" \
-        "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
+        "${APPIMAGETOOL_URL:-https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage}"
     chmod +x "$TOOL"
-    ARCH=x86_64 "$TOOL" --appimage-extract-and-run "$APPDIR" "$OUTPUT"
+    APPIMAGETOOL=("$TOOL" --appimage-extract-and-run)
 fi
+ARCH=x86_64 "${APPIMAGETOOL[@]}" --comp "${APPIMAGE_COMPRESSION:-zstd}" \
+    "${RUNTIME_ARGS[@]}" "$APPDIR" "$OUTPUT"
 chmod +x "$OUTPUT"
 
 echo "できあがり: $OUTPUT"
