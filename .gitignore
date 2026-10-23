@@ -1,0 +1,12 @@
+# 生成物・作業用
+*.AppImage
+*.AppImage.orig
+*.AppImage.zsync
+work/
+tmp/
+node_modules/
+__pycache__/
+*.log
+
+# 検証時の一時データ
+tomatox-ja-verify-*
